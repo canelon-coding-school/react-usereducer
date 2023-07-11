@@ -1,0 +1,17 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+  color: #888;
+}
+
+header,
+footer {
+  height: 10vh;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+section {
+  height: 70vh;
+  background-color: rgba(0, 0, 0, 0.5);
+}
