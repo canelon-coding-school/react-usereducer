@@ -1,14 +1,35 @@
-import { useState } from 'react';
+import { useReducer } from 'react';
 import { useNavigate } from "react-router-dom";
 import './login.css';
 
+const formReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_VALUE':
+      return { ...state, [action.field]: action.value };
+    case 'RESET':
+      return { ...state, username: '', password: '', error: '' };
+    case 'ERROR':
+      return { ...state, error: action.error };
+  }
+};
+
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+
+  const initialState = {
+    username: '',
+    password: '',
+    error: '',
+  };
+
+  const [formState, dispatch] = useReducer(formReducer, initialState);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formState.username.trim() === '' || formState.password.trim() === '') {
+      dispatch({ type: 'ERROR', error: 'Los campos nombre de usuario y contraseña son obligatorios' })
+    }
 
     const response = await fetch('http://localhost:9001/', {
       method: 'POST',
@@ -16,19 +37,28 @@ const Login = () => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({
+        username: formState.username,
+        password: formState.password
+      })
     });
 
     const responseJson = await response.json();
 
     if (responseJson.status === 'success') {
-      setUsername('');
-      setPassword('');
+      dispatch({ type: 'RESET' });
+
       return navigate('/dashboard');
     } else {
-      alert('error');
+      dispatch({ type: 'ERROR', error: responseJson.message })
     }
   };
+
+  const handleChange = (e) => {
+    dispatch({ type: 'SET_VALUE', field: e.target.name, value: e.target.value });
+  }
+
+  const submitDisable = !(formState.username.length > 1 && formState.password.length > 1);
 
   return (
     <div className="login">
@@ -37,19 +67,22 @@ const Login = () => {
         <input
           type="text"
           placeholder="Username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
+          name="username"
+          value={formState.username}
+          onChange={handleChange}
         />
         <input
           type="password"
           placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
+          name="password"
+          value={formState.password}
+          onChange={handleChange}
         />
+        {formState.error.length > 0 && <div style={{ color: '#A00' }}>{formState.error}</div>}
         <button
           type="submit"
           className="btn btn-primary btn-block btn-large"
-          disabled={!(username.length > 1 && password.length > 1)}
+          disabled={submitDisable}
         >
           Let me in
         </button>
