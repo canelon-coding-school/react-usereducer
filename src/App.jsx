@@ -1,11 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
-import * as Screen from './components/index.jsx'
 import './App.css'
+import Tweets from './tweets.jsx'
+import Login from './login'
 
 const App = () => (
   <Routes>
-    <Route path="/" element={<Screen.Login />} />
-    <Route path="/dashboard" element={<Screen.Dashboard />} />
+    <Route path="/" element={<Login />} />
+    <Route path="/tweets" element={<Tweets />} />
   </Routes>
 )
 
